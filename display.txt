@@ -1,0 +1,6 @@
+DISPLAY BITMAP
+4
+4
+512
+512
+
