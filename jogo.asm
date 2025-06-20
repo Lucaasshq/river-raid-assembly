@@ -1,95 +1,108 @@
-.data
-.word
-
 .text
-main:	lui $8, 0x1001
+main:	
+	lui $4, 0x1001 #registrador 4 mantém o primeiro espaço de mémoria
 	
+	jal defCenario
+	jal defRua
 	
-	ori $5, $5, 0xffff
-	add $4, $0, 0x00FF00 # verde
-	add $5, $0, 0x120a8f # azul
-	add $6, $0, 0x808080 # cinza
-	add $7, $0, 0xF5C207 # amarelo
-	
-	addi $10, $0, 0 # i
-	addi $11, $0, 16384 # lenght
-	addi $12, $0, 26 # inicio do rio #0 1
-	add $15, $0, 100 # fim do rio
-	
-	addi $21, $0, 8192
-	addi $22, $0, 14976
-	
-	
-for:	beq $11, $10, fim
-	beq $22, $10, defEstrada
-	beq $21, $10 diminuirLinha
-
-sFor:
-	sge $14, $10, $12 # se $10 > $12 $14=1
-	sle $16, $10, $15
-	and $17, $14, $16
-	 
-	bne $17, $0, azul
-	j verde
-	 	
-azul:
-	sw $5, 0($8) # pintar valor
-	addi $8, $8, 4 # [$8]+4
-	addi $10, $10, 1 # i++
-	j for
-
-verde: 	sw $4, 0($8) # pintar valor
-	addi $8, $8, 4 # [$8]+4
-	addi $10, $10, 1 # i++
-	
-	beq $16, $0, proximaLinha
-	j for
-	
-proximaLinha:
-	
-	addi $12, $12, 128 # inicio do rio #0 1
-	addi $15, $15, 128 # fim do rio
-	j for
-
-diminuirLinha:	add $21, $21, 2000
-	
-	addi $12, $12, 4 # inicio do rio #0 1
-	addi $15, $15, -4 # fim do rio
-
-	j sFor
-fim:
 	addi $2, $0, 10
 	syscall
-	
-	
-defEstrada:
 
-	addi $12, $0, 0 # LINHA TEM QUE SOMAR AINDA
-	add $15, $0, 127 # LINHA TEM QUE SOMAR AINDA
-	add $21, $0, 15616
-	add $12, $12, $21
-	add $15, $15, $21
 
-estrada: 
-	beq $11, $10, fim
-	# verficacao ou ele vai pra cinza ou amarelo
-	sge $14, $10, $12 # se $10 > $12 $14=1
-	sle $16, $10, $15
-	and $17, $14, $16
+
+#def -> coisas inicias
+#l -> laço
+#le -> laço externo
+#li -> laço interno
+#fim -> se tiver f significa fim
+
+
+defCenario:
+	add $8, $4, $0 # espaço de memoria que sera alterado
+	add $9, $0, $0 # i -> contador do laço
+	add $10, $0, 16384 # lenght -> limite do laço
+	# limites do rio
+	add $11, $0, 26	 #começo do rio na linha
+	add $12, $0, 102 #fim do rio na linha
 	
-	bne $17, $0, amarelo
-	j cinza
+	add $16, $0,  8192#guardar valor para reduzir tamanho do rio
+ 
+
+lCenario: 
+	beq $10, $9, fimlCenario
 	
-cinza:	
-	sw $6, 0($8) # pintar valor
+	#if para saber se pinta azul ou verde
+	sge $13, $9, $11 # se $9 >= $11 então $13 recebe 1.
+	sle $14, $9, $12 # se $9 <= $12 então $14 recebe 1.
+	and $15, $13, $14 # faz um and com $13 e $14 recebe 1 ou 0
+	bne $15, $0, azulCenario # se for 1 pinta o rio senao pinta a grama
+	j verdeCenario 
+	
+verdeCenario: 	
+	add $5, $0, 0x00FF00 #cor verde
+	sw $5, 0($8) # pintar valor
 	addi $8, $8, 4 # [$8]+4
-	addi $10, $10, 1 # i++
-	j estrada
-	
-amarelo:
-	sw $7, 0($8) # pintar valor
+	addi $9, $9, 1 # i++
+	beq $9, $16, diminuirRioCenario
+	j lCenario	
+
+azulCenario:
+	add $5, $0, 0x120a8f # azul
+	sw $5, 0($8) # pintar valor
 	addi $8, $8, 4 # [$8]+4
-	addi $10, $10, 1 # i++
-	j estrada
+	addi $9, $9, 1 # i++
 	
+	beq $9, $12, pulaLinhaCenario #se $9 = $12 (limite do rio na linha) chama pulaLInha
+	j lCenario
+
+pulaLinhaCenario:
+	# soma ao $11 e $12, para pular para o proxima linha
+	# para assim desenhar o rio
+	add $11, $11, 128 
+	add $12, $12, 128
+	j lCenario
+
+diminuirRioCenario:
+	add $11, $11, 4 # inicio do rio soma 4 para reduzir tamanho do rio
+	add $12, $12, -4 # fim do rio diminui 4 para reduzir tamanho do rio
+	add $16, $16, 1280 # frequencia com ele vai diminuir //a cada 10 linha
+	j lCenario
 	
+fimlCenario:
+	jr $31
+	
+defRua:
+	add $9, $0, 14976 # i -> contador do laço //ja começa onde pinta a rua
+	mul $16, $9, 4 #para pegar o espaço de memoria correto
+	add $8, $4, $16 # espaço de memoria que sera alterado 
+	add $10, $0, 16384 # lenght -> limite do laço // onde termina a rua
+	#limites da faixa amarela
+	add $11, $0, 15616	 #começo do faixa amarela na linha
+	add $12, $11, 127 	 #fim do faixa amarela linha
+	
+lRua:	beq $10, $9, fimlRua
+	#if para saber se pinta amarelo ou cinza
+	sge $13, $9, $11 # se $9 >= $11 então $13 recebe 1.
+	sle $14, $9, $12 # se $9 <= $12 então $14 recebe 1.
+	and $15, $13, $14 # faz um and com $13 e $14 recebe 1 ou 0
+	bne $15, $0, amareloRua # se for 1 pinta o asfalto senao pinta a faixa
+	j cinzaRua 
+
+cinzaRua:
+	add $5, $0, 0x808080 # amarelo
+	sw $5, 0($8) # pintar valor
+	addi $8, $8, 4 # [$8]+4
+	addi $9, $9, 1 # i++
+	j lRua
+
+amareloRua:
+	add $5, $0, 0xF5C207 # amarelo
+	sw $5, 0($8) # pintar valor
+	addi $8, $8, 4 # [$8]+4
+	addi $9, $9, 1 # i++
+	j lRua
+	
+fimlRua: jr $31
+
+
+
