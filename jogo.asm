@@ -5,6 +5,7 @@ main:
 	jal defCenario
 	jal defRua
 	jal defCasa
+	jal defCasa1
 	
 	addi $2, $0, 10
 	syscall
@@ -106,11 +107,12 @@ fimlRua: jr $31
 
 
 #def -> defenicoes iniciais:
+#casa 1
 defCasa:
 	add $9, $0, 11264 # i -> contador do laço //ja começa onde pinta a rua
 	mul $16, $9, 4 #para pegar o espaço de memoria correto
 	add $8, $4, $16 # espaço de memoria que sera alterado 
-	add $10, $0, 11904 # lenght -> limite do laço // onde termina a rua
+	add $10, $0, 12032 # lenght -> limite do laço // onde termina a rua
 	#limites da Casa
 	add $11, $0, 14	 #Comeco da casa
 	add $12, $0, 16 #fim da Casa
@@ -124,7 +126,10 @@ lCasa:	beq $10, $9, fimlCasa
 	sge $13, $9, $11 # se $9 >= $11 então $13 recebe 1.
 	sle $14, $9, $12 # se $9 <= $12 então $14 recebe 1.
 	and $15, $13, $14 # faz um and com $13 e $14 recebe 1 ou 0
-	bne $15, $0, PretoCasa # se for 1 pinta o asfalto senao pinta a faixa
+	slti $16, $9,11648
+	and $17, $15, $16
+	bne $17, $0, PretoCasa # se for 1 pinta o asfalto senao pinta a faixa
+	bne $15, $0, corCasa
 	addi $8, $8, 4 # [$8]+4
 	addi $9, $9, 1 # i++
 	beq $9, 11392, aumentarLinhaCasa
@@ -132,13 +137,19 @@ lCasa:	beq $10, $9, fimlCasa
 	j lCasa
 	
 PretoCasa:
-	add $5, $0, 0xF5C207 # amarelo
+	add $5, $0, 0x000000 # preto
 	sw $5, 0($8) # pintar valor
 	addi $8, $8, 4 # [$8]+4
 	addi $9, $9, 1 # i++
 	beq $9, $12, pulaLinhaCasa 
 	j lCasa
-	
+corCasa:
+	add $5, $0, 0xFFFFFF # preto
+	sw $5, 0($8) # pintar valor
+	addi $8, $8, 4 # [$8]+4
+	addi $9, $9, 1 # i++
+	beq $9, $12, pulaLinhaCasa 
+	j lCasa
 pulaLinhaCasa:
 	# soma ao $11 e $12, para pular para o proxima linha
 	# para assim desenhar o rio
@@ -152,6 +163,64 @@ aumentarLinhaCasa:
 	j lCasa
 	
 fimlCasa:
+	jr $31
+	
+#casa 2
+defCasa1:
+	add $9, $0, 11264 # i -> contador do laço //ja começa onde pinta a rua
+	mul $16, $9, 4 #para pegar o espaço de memoria correto
+	add $8, $4, $16 # espaço de memoria que sera alterado 
+	add $10, $0, 12032 # lenght -> limite do laço // onde termina a rua
+	#limites da Casa
+	add $11, $0, 104	 #Comeco da casa
+	add $12, $0, 106 #fim da Casa
+	add $11, $11, $9
+	add $12, $12, $9
+	
+	 
+	
+lCasa1:	beq $10, $9, fimlCasa1
+	#if para saber se pinta amarelo ou cinza
+	sge $13, $9, $11 # se $9 >= $11 então $13 recebe 1.
+	sle $14, $9, $12 # se $9 <= $12 então $14 recebe 1.
+	and $15, $13, $14 # faz um and com $13 e $14 recebe 1 ou 0
+	slti $16, $9,11648
+	and $17, $15, $16
+	bne $17, $0, PretoCasa1 # se for 1 pinta o asfalto senao pinta a faixa
+	bne $15, $0, corCasa1
+	addi $8, $8, 4 # [$8]+4
+	addi $9, $9, 1 # i++
+	beq $9, 11392, aumentarLinhaCasa1
+	beq $9, 11520, aumentarLinhaCasa1
+	j lCasa
+	
+PretoCasa1:
+	add $5, $0, 0x000000 # preto
+	sw $5, 0($8) # pintar valor
+	addi $8, $8, 4 # [$8]+4
+	addi $9, $9, 1 # i++
+	beq $9, $12, pulaLinhaCasa1
+	j lCasa1
+corCasa1:
+	add $5, $0, 0xFFFFFF # preto
+	sw $5, 0($8) # pintar valor
+	addi $8, $8, 4 # [$8]+4
+	addi $9, $9, 1 # i++
+	beq $9, $12, pulaLinhaCasa1 
+	j lCasa1
+pulaLinhaCasa1:
+	# soma ao $11 e $12, para pular para o proxima linha
+	# para assim desenhar o rio
+	add $11, $11, 128 
+	add $12, $12, 128
+	j lCasa1
+
+aumentarLinhaCasa1:
+	add $11, $11, -2
+	add $12, $12, 2
+	j lCasa1
+	
+fimlCasa1:
 	jr $31
 	
 	
