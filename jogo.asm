@@ -112,8 +112,8 @@ defCasa:
 	add $8, $4, $16 # espaço de memoria que sera alterado 
 	add $10, $0, 11904 # lenght -> limite do laço // onde termina a rua
 	#limites da Casa
-	add $11, $0, 10	 #Comeco da casa
-	add $12, $0, 20 #fim da Casa
+	add $11, $0, 14	 #Comeco da casa
+	add $12, $0, 16 #fim da Casa
 	add $11, $11, $9
 	add $12, $12, $9
 	
@@ -127,6 +127,8 @@ lCasa:	beq $10, $9, fimlCasa
 	bne $15, $0, PretoCasa # se for 1 pinta o asfalto senao pinta a faixa
 	addi $8, $8, 4 # [$8]+4
 	addi $9, $9, 1 # i++
+	beq $9, 11392, aumentarLinhaCasa
+	beq $9, 11520, aumentarLinhaCasa
 	j lCasa
 	
 PretoCasa:
@@ -142,6 +144,11 @@ pulaLinhaCasa:
 	# para assim desenhar o rio
 	add $11, $11, 128 
 	add $12, $12, 128
+	j lCasa
+
+aumentarLinhaCasa:
+	add $11, $11, -2
+	add $12, $12, 2
 	j lCasa
 	
 fimlCasa:
