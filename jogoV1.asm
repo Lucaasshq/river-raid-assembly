@@ -4,6 +4,7 @@ main:
 	
 	jal defCenario
 	#jal defRua
+	jal defNavio
 	jal defCasa
 	jal defCasa1
 	
@@ -17,7 +18,75 @@ main:
 #le -> laÃ§o externo
 #li -> laÃ§o interno
 #fim -> se tiver f significa fim
- 
+ # =====================================================================
+# Nova definição do Navio, desenhado em 3 partes para se assemelhar à imagem
+# =====================================================================
+defNavio:
+    # --- Parte 1: Casco inferior (Azul Claro) ---
+    # Posição inicial: linha 42, coluna 59
+    # Índice = (42 * 128 + 59) = 5435
+    li $9, 5435          # Índice base para o casco azul
+    mul $16, $9, 4       # Deslocamento em bytes
+    add $8, $4, $16      # Ponteiro para a posição inicial
+    li $10, 1            # Altura (1 linha)
+    li $11, 10           # Largura (10 colunas)
+    li $5, 0x66B2FF      # Cor: Azul claro
+
+linhaNavioAzul:
+    li $12, 0            # Zera o contador de colunas
+colunaNavioAzul:
+    sw $5, 0($8)         # Pinta a posição com azul claro
+    addi $8, $8, 4       # Próxima célula na mesma linha
+    addi $12, $12, 1
+    bne $12, $11, colunaNavioAzul # Loop para as colunas
+
+    # Prepara para a próxima linha (não é necessário aqui, pois é uma linha só)
+    addi $10, $10, -1
+    bnez $10, linhaNavioAzul
+
+    # --- Parte 2: Convés/Casco superior (Marrom) ---
+    # Posição inicial: linha 41, coluna 58
+    # Índice = (41 * 128 + 58) = 5306
+    li $9, 5306          # Índice base para o convés marrom
+    mul $16, $9, 4       # Deslocamento em bytes
+    add $8, $4, $16      # Ponteiro para a posição inicial
+    li $10, 1            # Altura (1 linha)
+    li $11, 12           # Largura (12 colunas)
+    li $5, 0x8B4513      # Cor: Marrom (a mesma que você usou)
+
+linhaNavioMarrom:
+    li $12, 0            # Zera o contador de colunas
+colunaNavioMarrom:
+    sw $5, 0($8)         # Pinta a posição com marrom
+    addi $8, $8, 4       # Próxima célula na mesma linha
+    addi $12, $12, 1
+    bne $12, $11, colunaNavioMarrom # Loop para as colunas
+
+    addi $10, $10, -1
+    bnez $10, linhaNavioMarrom
+
+    # --- Parte 3: Superestrutura (Preto) ---
+    # Posição inicial: linha 40, coluna 63
+    # Índice = (40 * 128 + 63) = 5183
+    li $9, 5183          # Índice base para a estrutura preta
+    mul $16, $9, 4       # Deslocamento em bytes
+    add $8, $4, $16      # Ponteiro para a posição inicial
+    li $10, 1            # Altura (1 linha)
+    li $11, 4            # Largura (4 colunas)
+    li $5, 0x000000      # Cor: Preto
+
+linhaNavioPreto:
+    li $12, 0            # Zera o contador de colunas
+colunaNavioPreto:
+    sw $5, 0($8)         # Pinta a posição com preto
+    addi $8, $8, 4       # Próxima célula na mesma linha
+    addi $12, $12, 1
+    bne $12, $11, colunaNavioPreto # Loop para as colunas
+
+    addi $10, $10, -1
+    bnez $10, linhaNavioPreto
+
+    jr $31
 
 defCenario:
 	add $8, $4, $0 # espaÃ§o de memoria que sera alterado
