@@ -1,6 +1,7 @@
 .data
 navio_pos: .word 58, 100
-aviao_cor: .word 0xFFEB3B
+aviao_cor_preto: .word 0xFFEB3B
+aviao_cor_azul: .word 0x0000FF
 
 #vela - preta
 navio_pixels: 
@@ -19,9 +20,10 @@ navio_pixels:
 .word -4, -1
 .word 1, -1
 .word 2, -1
+.word 99 , 99
 
 #base - marrom
-
+navio_base:
 .word 0, 0
 .word -1, 0
 .word -2, 0
@@ -52,7 +54,7 @@ navio_pixels:
 
 
 #fim
-.word 99 99
+.word 99, 99
 
 
 
@@ -67,17 +69,20 @@ lui $16, 0x1001
 
 	
 defNavio:
-	lw $4, aviao_cor
+	jal jalNavioCima
 	
+jalNavioCima:	
+	
+	lw $4, aviao_cor_preto
 	add $7, $0, $0
-LENavio:
+Loop_navio_Emcima:
 	lw $5, navio_pos
 	lw $6, navio_pos+4
 	lw $t0, navio_pixels($7)
 	lw $t1, navio_pixels+4($7)
 	
 	li $t8, 99
-	beq $t0, $t8, fim
+	beq $t0, $t8, DefNavioCasca
 	
 	
 	add $5, $5, $t0
@@ -86,8 +91,8 @@ LENavio:
 	jal DrawPixel
 	
 	addi $7, $7, 8
-	j LENavio
-	
+	j Loop_navio_Emcima
+
 #$4 = cor
 #$5 = x
 #$6 = y
@@ -102,7 +107,35 @@ DrawPixel:
 	
 	jr $31
 
-fim: 	
+
 	
+DefNavioCasca:
+	lw $4, aviao_cor_azul
+
+	add $7, $0, $0
+loopNavioCasca:
+	lw $5, navio_pos
+	lw $6, navio_pos+4
+	lw $t0, navio_base($7)
+	
+	la $t9, navio_base       # endereço base
+    	add $t9, $t9, $7         # offset atual
+    	lw $t0, 0($t9)           # dx
+    	lw $t1, 4($t9)           # dy (offset + 4)
+	
+	
+	li $t8, 99
+	beq $t0, $t8, fnavio
+	
+	add $5, $5, $t0
+	add $6, $6, $t1
+	
+	jal DrawPixel
+	
+	addi $7, $7, 8
+	j loopNavioCasca
+	
+fnavio:
+fim:
 	addi $2, $0, 10
 	syscall
