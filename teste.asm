@@ -10,6 +10,92 @@ q_pixels:
     .word 0, 3
     .word 99, 99
 
+casa_pos: .word 15, 34
+casa_telhado_cor: .word 0x000000
+casa_parede_cor: .word 0xFFFFFF
+
+casa_telhado_pixels:
+#topo
+.word 0, 0
+.word -1, 0
+.word 1, 0
+#base
+.word 0, 1
+.word 1, 1
+.word 2, 1
+.word -1, 1
+.word -2, 1
+
+.word 99, 99
+
+casa_parede_pixels:
+#topo
+.word 0, 2
+.word 1, 2
+.word -1, 2
+.word 2, 2
+.word -2, 2
+#base
+.word 0, 3
+.word 1, 3
+.word 2, 3
+.word -1, 3
+.word -2, 3
+.word 99, 99
+
+navio_pos: .word 58, 100
+aviao_cor_preto: .word 0xFFEB3B
+aviao_cor_azul: .word 0x0000FF
+
+#vela - preta
+navio_pixels: 
+.word 0, -4
+.word 0, -3 
+.word -1, -3
+.word 0, -2
+.word -3, -2
+.word -2, -2
+.word -1, -2
+.word 1, -2
+.word 0, -1
+.word -1, -1
+.word -2, -1
+.word -3, -1
+.word -4, -1
+.word 1, -1
+.word 2, -1
+.word 99 , 99
+
+#base - marrom
+navio_base:
+.word 0, 0
+.word -1, 0
+.word -2, 0
+.word -3, 0
+.word -4, 0
+.word -5, 0
+.word -6, 0
+.word -7, 0
+.word -8, 0
+.word 1, 0
+.word 2, 0
+.word 3, 0
+.word 4, 0
+.word 5, 0
+.word 0, 1
+.word 1, 1
+.word 2, 1
+.word 3, 1
+.word 4, 1
+.word 5, 1
+.word -1, 1
+.word -2, 1
+.word -3, 1
+.word -4, 1
+.word -5, 1
+.word -6, 1
+.word 99, 99
+
 .text
 main:
 	.include "./cenario.asm"
@@ -19,11 +105,11 @@ main:
     
     
 gameloop:
+	jal casa
     jal quadrado
-    lw $8, q_pos+4
-    addi $8, $8, 1
-    sw $8, q_pos+4
-    
+    li $a0, 500
+    	li $v0, 32
+    	syscall
     j gameloop
 
 quadrado:
@@ -35,17 +121,16 @@ quadrado:
     lw $a0, q_cor
     la $a1, q_pos
     la $a2, q_pixels
-    jal desenhaForma
+    jal apagaForma
 
     # Pausa
-    li $a0, 3000
-    li $v0, 32
-    syscall
-	
+	lw $8, q_pos+4
+    addi $8, $8, 1
+    sw $8, q_pos+4
  
     # Prepara os argumentos e chama a segunda função
     la $a2, q_pixels
-    jal apagaForma # (apagaForma precisaria da mesma correção de pilha que desenhaForma)
+    jal desenhaForma # (apagaForma precisaria da mesma correção de pilha que desenhaForma)
     
     ### ADIÇÃO: Restaura o endereço de retorno para 'main' da pilha
     lw $ra, 0($sp)
@@ -155,6 +240,64 @@ ErasePixel:
 #---------------------------------------------------------------------
 
 
+
+moverCasa:
+	
+	lw $8, casa_pos+4
+	beq $8, 128, voltaTopo
+	addi $8, $8, 1
+	sw $8, casa_pos+4
+	j casaDesenha
+	
+voltaTopo:
+	addi $8, $0, 0
+	sw $8, casa_pos+4
+	j casaDesenha
+	
+casa:	subi $sp, $sp, 4
+    	sw $ra, 0($sp)
+    	
+	lw $a0, casa_telhado_cor
+    	la $a1, casa_pos
+    	la $a2, casa_telhado_pixels
+    	
+    	jal apagaForma
+
+	lw $a0, casa_parede_cor
+    	la $a1, casa_pos
+    	la $a2, casa_parede_pixels
+	
+	jal apagaForma
+	
+	j moverCasa
+casaDesenha:
+	lw $a0, casa_telhado_cor
+    	la $a1, casa_pos
+    	la $a2, casa_telhado_pixels
+    	
+    	jal desenhaForma
+
+	lw $a0, casa_parede_cor
+    	la $a1, casa_pos
+    	la $a2, casa_parede_pixels
+	
+	jal desenhaForma
+
+	
+	lw $ra, 0($sp)
+    	addi $sp, $sp, 4
+    
+    	jr $ra
+	
+	
+	
+navio:
+	lw $a0, casa_telhado_cor
+    	la $a1, casa_pos
+    	la $a2, casa_telhado_pixels
+    	
+    	
+    	
 fim:
 li $v0, 10
 syscall
