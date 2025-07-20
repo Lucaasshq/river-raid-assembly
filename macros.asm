@@ -108,7 +108,7 @@ sw $8, %posicao+4
 
 .macro cima (%posicao)
 lw $8, %posicao+4
-addi $8, $8, -1
+addi $8, $8, -6
 sw $8, %posicao+4
 .end_macro
 
