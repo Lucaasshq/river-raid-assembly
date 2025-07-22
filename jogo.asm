@@ -212,12 +212,19 @@ tiro_pixels:
 .word 99 99
 #cor fica no reg $5
 #display fica no %s0
+rio_pos: .word 0 0
+
+rio_margens:
+.word 31 101
+.word 96 101
+.word 99 99
 
 .text
 carregar:
 	lui $s0, 0x1001 #display
 	lui $s1, 0xffff #teclado
-	addi $s2, $0, 0, #existencia do tiro
+	addi $s2, $0, 0 #existencia do tiro
+	addi $s3, $0, 1 #jogador vivo
 	casa (casa_posicao)
 	casa (casa_posicao_2)
 	navio
@@ -239,12 +246,17 @@ loop:
 	navio
 	helicoptero (helicoptero_posicao)
 	helicoptero (helicoptero_posicao_2)
-	
 	teclado
+	 
 	delay
+	#jogador_colidiu_helicoptero_1
+	#jogador_colidiu_helicoptero_2
+	#jogador_colidiu_navio
+	jogador_colidiu_rio
 	j loop
 	
-	
+game_over_label:
+	end
 	
 	
 	

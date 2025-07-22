@@ -284,3 +284,86 @@ addi $a1 $0 500 # tempo
     addi $v0 $0 31 # syscall
     syscall
 .end_macro
+
+.macro verificaXY (%x1, %y1, %x2, %y2 )
+bne %x1, %x2, diferentes
+bne %y1, %y2, diferentes
+li $t9, 1
+diferentes:
+.end_macro
+
+.macro colisao (%n1_posicao, %n1_pixels, %n2_posicao, %n2_pixels)
+la $4, %n1_posicao
+la $5, %n1_pixels
+la $6, %n2_posicao
+li $t9, 0
+LEColisao:
+	lw $8, 0($5)
+	lw $9, 4($5)
+	
+	beq $8, 99, fLEColisao
+	la $7, %n2_pixels
+	LIColisao:
+		lw $10, 0($7)
+		lw $11, 4($7)
+		
+		beq $10, 99, fLIColisao
+		
+		lw $12, 0($4)
+		lw $13, 4($4)
+		lw $14, 0($6)
+		lw $15, 4($6)
+		add $12, $12, $8
+		add $13, $13, $9
+		add $14, $14, $10
+		add $15, $15, $11
+		
+		verificaXY ($12, $13, $14, $15)
+		
+		addi $7, $7, 8
+		j LIColisao
+	fLIColisao:
+		addi $5, $5, 8
+		j LEColisao
+fLEColisao:
+.end_macro
+
+
+
+
+.macro jogador_colidiu (%npc_pos, %npc_pixels)
+colisao(jogador_posicao, jogador_pixels, %npc_pos, %npc_pixels)
+beq $t9, $0, fim_jogador_colidiu
+apaga(jogador_posicao, jogador_pixels)
+end
+fim_jogador_colidiu:
+.end_macro
+
+
+.macro jogador_colidiu_helicoptero_1
+jogador_colidiu(helicoptero_posicao, helicoptero_ponta_pixels)
+jogador_colidiu(helicoptero_posicao, helicoptero_meio_pixels)
+jogador_colidiu(helicoptero_posicao, helicoptero_helice_pixels)
+.end_macro
+
+
+.macro jogador_colidiu_helicoptero_2
+jogador_colidiu(helicoptero_posicao_2, helicoptero_ponta_pixels)
+jogador_colidiu(helicoptero_posicao_2, helicoptero_meio_pixels)
+jogador_colidiu(helicoptero_posicao_2, helicoptero_helice_pixels)
+.end_macro
+
+
+.macro jogador_colidiu_navio
+jogador_colidiu(navio_posicao, navio_vela_pixels)
+jogador_colidiu(navio_posicao, navio_base_pixels)
+.end_macro
+
+.macro jogador_colidiu_rio
+jogador_colidiu(rio_pos, rio_margens)
+.end_macro
+
+
+
+
+
