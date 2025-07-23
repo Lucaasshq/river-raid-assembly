@@ -363,7 +363,62 @@ jogador_colidiu(navio_posicao, navio_base_pixels)
 jogador_colidiu(rio_pos, rio_margens)
 .end_macro
 
+.macro npc_colidiu(%npc_pos, %npc_pixels)
+colisao(tiro_posicao, tiro_pixels, %npc_pos, %npc_pixels)
+beq $t9, $0, fim_npc_colidiu
+apaga(tiro_posicao, tiro_pixels)
+add $s2, $0, $0
+fim_npc_colidiu:
+.end_macro
 
+.macro helicoptero_1_colidiu
+#npc_colidiu(helicoptero_posicao, helicoptero_ponta_pixels)
+#beq $t9, 1, helicoptero_its_over
+npc_colidiu(helicoptero_posicao, helicoptero_meio_pixels)
+beq $t9, 1, helicoptero_its_over
+npc_colidiu(helicoptero_posicao, helicoptero_helice_pixels)
+beq $t9, 1, helicoptero_its_over
+j fim_helicoptero_1_colidiu
+helicoptero_its_over:
+apaga(helicoptero_posicao, helicoptero_ponta_pixels)
+apaga(helicoptero_posicao, helicoptero_meio_pixels)
+apaga(helicoptero_posicao, helicoptero_helice_pixels)
+li $8, 128
+sw $8, helicoptero_posicao
+sw $8, helicoptero_posicao+4
+fim_helicoptero_1_colidiu:
+.end_macro
 
+.macro helicoptero_2_colidiu
+#npc_colidiu(helicoptero_posicao_2, helicoptero_ponta_pixels)
+#beq $t9, 1, helicoptero_2_its_over
+npc_colidiu(helicoptero_posicao_2, helicoptero_meio_pixels)
+beq $t9, 1, helicoptero_2_its_over
+npc_colidiu(helicoptero_posicao_2, helicoptero_helice_pixels)
+beq $t9, 1, helicoptero_2_its_over
+j fim_helicoptero_2_colidiu
+helicoptero_2_its_over:
+apaga(helicoptero_posicao_2, helicoptero_ponta_pixels)
+apaga(helicoptero_posicao_2, helicoptero_meio_pixels)
+apaga(helicoptero_posicao_2, helicoptero_helice_pixels)
+li $8, 128
+sw $8, helicoptero_posicao_2
+sw $8, helicoptero_posicao_2+4
+fim_helicoptero_2_colidiu:
+.end_macro
+
+.macro navio_colidiu
+npc_colidiu(navio_posicao, navio_base_pixels)
+beq $t9, 1, navio_its_over
+j fim_navio_colidiu
+
+navio_its_over:
+apaga(navio_posicao, navio_vela_pixels)
+apaga(navio_posicao, navio_base_pixels)	
+li $8, 128
+sw $8, navio_posicao
+sw $8, navio_posicao+4
+fim_navio_colidiu:
+.end_macro
 
 

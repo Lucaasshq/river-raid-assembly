@@ -224,7 +224,6 @@ carregar:
 	lui $s0, 0x1001 #display
 	lui $s1, 0xffff #teclado
 	addi $s2, $0, 0 #existencia do tiro
-	addi $s3, $0, 1 #jogador vivo
 	casa (casa_posicao)
 	casa (casa_posicao_2)
 	navio
@@ -249,10 +248,14 @@ loop:
 	teclado
 	 
 	delay
-	#jogador_colidiu_helicoptero_1
-	#jogador_colidiu_helicoptero_2
-	#jogador_colidiu_navio
+	
+	jogador_colidiu_helicoptero_1
+	jogador_colidiu_helicoptero_2
+	jogador_colidiu_navio
 	jogador_colidiu_rio
+	helicoptero_1_colidiu
+	helicoptero_2_colidiu
+	navio_colidiu
 	j loop
 	
 game_over_label:
